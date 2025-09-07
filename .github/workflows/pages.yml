@@ -28,6 +28,11 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 'latest'
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -67,8 +72,8 @@ jobs:
 
       - name: Install and build Astro site
         run: |
-          npm ci || npm i
-          npm run build
+          bun install
+          bun run build
 
       - name: Include CNAME in artifact
         run: |

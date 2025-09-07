@@ -2,165 +2,46 @@
 // Theme Switcher Component - Switches between Gurren Lagann (light) and Evangelion (dark)
 ---
 
-<div class="theme-switcher">
-  <!-- Theme Toggle Button -->
-  <button 
-    id="theme-toggle" 
-    class="theme-toggle-btn group relative overflow-hidden rounded-full p-3 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-surface-950"
-    aria-label="Toggle theme"
-    title="Switch between Gurren Lagann and Evangelion themes"
-  >
-    <!-- Light theme icon (Drill) -->
-    <div class="theme-icon light-icon drill absolute inset-0 flex items-center justify-center transition-all duration-500">
-      <div class="drill-small"></div>
-    </div>
-    
-    <!-- Dark theme icon (AT Field) -->
-    <div class="theme-icon dark-icon at-field-small absolute inset-0 flex items-center justify-center transition-all duration-500">
-      <div class="at-field-icon"></div>
-    </div>
-    
-    <!-- Background effects -->
-    <div class="theme-bg absolute inset-0 rounded-full transition-all duration-300"></div>
-  </button>
-  
-  <!-- Theme Status Indicator -->
-  <div class="theme-status mt-2 text-center">
-    <span id="theme-name" class="text-sm font-medium text-surface-600 dark:text-surface-400"></span>
+<!-- Simple inline theme toggle -->
+<button 
+  id="theme-toggle" 
+  class="theme-toggle-btn relative p-2 rounded-lg transition-all duration-200 hover:bg-surface-100 dark:hover:bg-surface-800 focus:outline-none"
+  aria-label="Toggle theme"
+  title="Switch theme"
+>
+  <!-- Light theme icon -->
+  <div class="theme-icon light-icon transition-all duration-300">
+    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+    </svg>
   </div>
-</div>
+  
+  <!-- Dark theme icon -->
+  <div class="theme-icon dark-icon absolute inset-2 transition-all duration-300">
+    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+      <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+    </svg>
+  </div>
+</button>
 
 <style>
-  .theme-switcher {
-    @apply fixed top-4 right-4 z-50;
-  }
-  
-  .theme-toggle-btn {
-    @apply w-12 h-12 bg-surface-100/80 dark:bg-surface-800/80 border border-surface-200 dark:border-surface-700;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
-  
-  .theme-toggle-btn:hover {
-    @apply bg-surface-200/90 dark:bg-surface-700/90 border-primary-300 dark:border-primary-600;
-  }
-  
-  /* Light theme (Gurren Lagann) icon styling */
+  /* Light theme icon visible by default */
   .light-icon {
     opacity: 1;
-    transform: rotate(0deg) scale(1);
   }
   
-  [data-theme="dark"] .light-icon,
-  [data-theme="evangelion"] .light-icon {
-    opacity: 0;
-    transform: rotate(-180deg) scale(0.8);
-  }
-  
-  /* Dark theme (NGE) icon styling */
+  /* Dark theme icon hidden by default */
   .dark-icon {
     opacity: 0;
-    transform: rotate(180deg) scale(0.8);
   }
   
-  [data-theme="dark"] .dark-icon,
-  [data-theme="evangelion"] .dark-icon {
+  /* Dark theme active - show dark icon, hide light icon */
+  [data-theme="dark"] .light-icon {
+    opacity: 0;
+  }
+  
+  [data-theme="dark"] .dark-icon {
     opacity: 1;
-    transform: rotate(0deg) scale(1);
-  }
-  
-  /* Small drill for light theme */
-  .drill-small {
-    width: 20px;
-    height: 20px;
-    position: relative;
-    display: inline-block;
-  }
-  
-  .drill-small::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: conic-gradient(from 0deg, 
-      #ffcc00 0deg,
-      #e11d2a 120deg,
-      #20c8f7 240deg,
-      #ffcc00 360deg);
-    border-radius: 50%;
-    animation: drill-spin 2s linear infinite;
-  }
-  
-  .drill-small::after {
-    content: '';
-    position: absolute;
-    inset: 4px;
-    background: linear-gradient(45deg, #ffcc00, #e11d2a);
-    border-radius: 50%;
-    animation: drill-spin 1.5s linear infinite reverse;
-  }
-  
-  /* Small AT Field for dark theme */
-  .at-field-icon {
-    width: 20px;
-    height: 20px;
-    position: relative;
-    display: inline-block;
-  }
-  
-  .at-field-icon::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle, rgba(245, 158, 11, 0.8) 0%, transparent 70%);
-    clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
-    animation: at-field-glow 3s ease-in-out infinite;
-  }
-  
-  .at-field-icon::after {
-    content: '';
-    position: absolute;
-    inset: 3px;
-    border: 1px solid rgba(245, 158, 11, 0.9);
-    clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
-    animation: at-field-glow 3s ease-in-out infinite;
-    animation-delay: 0.5s;
-  }
-  
-  /* Theme-specific background effects */
-  .theme-bg {
-    background: radial-gradient(circle, rgba(var(--color-primary-500), 0.1) 0%, transparent 70%);
-  }
-  
-  .theme-toggle-btn:hover .theme-bg {
-    background: radial-gradient(circle, rgba(var(--color-primary-500), 0.2) 0%, transparent 70%);
-  }
-  
-  /* Animations */
-  @keyframes drill-spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-  
-  @keyframes at-field-glow {
-    0%, 100% { opacity: 0.7; filter: brightness(1); }
-    50% { opacity: 1; filter: brightness(1.2); }
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .theme-switcher {
-      @apply top-3 right-3;
-    }
-    
-    .theme-toggle-btn {
-      @apply w-10 h-10 p-2;
-    }
-    
-    .drill-small,
-    .at-field-icon {
-      width: 16px;
-      height: 16px;
-    }
   }
 </style>
 
@@ -228,11 +109,7 @@
     }
     
     updateThemeNameDisplay() {
-      const themeNameEl = document.getElementById('theme-name');
-      if (themeNameEl) {
-        const currentTheme = this.getCurrentTheme();
-        themeNameEl.textContent = this.getThemeName(currentTheme);
-      }
+      // Simplified - no status display needed
     }
     
     animateThemeChange() {

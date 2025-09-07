@@ -30,27 +30,6 @@ const { title = 'deadmeme.dev', description = 'Hrishikesh — blog, devlog, proj
   </head>
   
   <body class="min-h-screen bg-surface-50 text-surface-900 dark:bg-surface-950 dark:text-surface-50 font-sans antialiased transition-colors duration-300">
-    <!-- Background decorative elements -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      <!-- Gurren Lagann light theme background effects -->
-      <div class="absolute top-20 right-20 opacity-20 dark:opacity-0 transition-opacity duration-500">
-        <div class="spiral-energy"></div>
-      </div>
-      <div class="absolute bottom-32 left-16 opacity-15 dark:opacity-0 transition-opacity duration-500">
-        <div class="flame-effect"></div>
-      </div>
-      
-      <!-- Evangelion dark theme background effects -->
-      <div class="absolute top-32 left-32 opacity-0 dark:opacity-20 transition-opacity duration-500">
-        <div class="at-field"></div>
-      </div>
-      <div class="absolute bottom-20 right-24 opacity-0 dark:opacity-15 transition-opacity duration-500">
-        <div class="cross-light"></div>
-      </div>
-    </div>
-    
-    <!-- Theme Switcher -->
-    <ThemeSwitcher />
     
     <!-- Header -->
     <header class="sticky top-0 z-40 glass bg-surface-50/80 dark:bg-surface-950/80 border-b border-surface-200 dark:border-surface-800 transition-all duration-300">
@@ -123,6 +102,9 @@ const { title = 'deadmeme.dev', description = 'Hrishikesh — blog, devlog, proj
               github
             </a>
           </div>
+          
+          <!-- Theme Switcher in Header -->
+          <ThemeSwitcher />
         </div>
         
         <!-- Mobile Navigation -->
