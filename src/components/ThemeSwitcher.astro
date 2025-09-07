@@ -1,0 +1,282 @@
+---
+// Theme Switcher Component - Switches between Gurren Lagann (light) and Evangelion (dark)
+---
+
+<div class="theme-switcher">
+  <!-- Theme Toggle Button -->
+  <button 
+    id="theme-toggle" 
+    class="theme-toggle-btn group relative overflow-hidden rounded-full p-3 transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-surface-950"
+    aria-label="Toggle theme"
+    title="Switch between Gurren Lagann and Evangelion themes"
+  >
+    <!-- Light theme icon (Drill) -->
+    <div class="theme-icon light-icon drill absolute inset-0 flex items-center justify-center transition-all duration-500">
+      <div class="drill-small"></div>
+    </div>
+    
+    <!-- Dark theme icon (AT Field) -->
+    <div class="theme-icon dark-icon at-field-small absolute inset-0 flex items-center justify-center transition-all duration-500">
+      <div class="at-field-icon"></div>
+    </div>
+    
+    <!-- Background effects -->
+    <div class="theme-bg absolute inset-0 rounded-full transition-all duration-300"></div>
+  </button>
+  
+  <!-- Theme Status Indicator -->
+  <div class="theme-status mt-2 text-center">
+    <span id="theme-name" class="text-sm font-medium text-surface-600 dark:text-surface-400"></span>
+  </div>
+</div>
+
+<style>
+  .theme-switcher {
+    @apply fixed top-4 right-4 z-50;
+  }
+  
+  .theme-toggle-btn {
+    @apply w-12 h-12 bg-surface-100/80 dark:bg-surface-800/80 border border-surface-200 dark:border-surface-700;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  
+  .theme-toggle-btn:hover {
+    @apply bg-surface-200/90 dark:bg-surface-700/90 border-primary-300 dark:border-primary-600;
+  }
+  
+  /* Light theme (Gurren Lagann) icon styling */
+  .light-icon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+  
+  [data-theme="dark"] .light-icon,
+  [data-theme="evangelion"] .light-icon {
+    opacity: 0;
+    transform: rotate(-180deg) scale(0.8);
+  }
+  
+  /* Dark theme (NGE) icon styling */
+  .dark-icon {
+    opacity: 0;
+    transform: rotate(180deg) scale(0.8);
+  }
+  
+  [data-theme="dark"] .dark-icon,
+  [data-theme="evangelion"] .dark-icon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+  
+  /* Small drill for light theme */
+  .drill-small {
+    width: 20px;
+    height: 20px;
+    position: relative;
+    display: inline-block;
+  }
+  
+  .drill-small::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: conic-gradient(from 0deg, 
+      #ffcc00 0deg,
+      #e11d2a 120deg,
+      #20c8f7 240deg,
+      #ffcc00 360deg);
+    border-radius: 50%;
+    animation: drill-spin 2s linear infinite;
+  }
+  
+  .drill-small::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    background: linear-gradient(45deg, #ffcc00, #e11d2a);
+    border-radius: 50%;
+    animation: drill-spin 1.5s linear infinite reverse;
+  }
+  
+  /* Small AT Field for dark theme */
+  .at-field-icon {
+    width: 20px;
+    height: 20px;
+    position: relative;
+    display: inline-block;
+  }
+  
+  .at-field-icon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.8) 0%, transparent 70%);
+    clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+    animation: at-field-glow 3s ease-in-out infinite;
+  }
+  
+  .at-field-icon::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 1px solid rgba(245, 158, 11, 0.9);
+    clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+    animation: at-field-glow 3s ease-in-out infinite;
+    animation-delay: 0.5s;
+  }
+  
+  /* Theme-specific background effects */
+  .theme-bg {
+    background: radial-gradient(circle, rgba(var(--color-primary-500), 0.1) 0%, transparent 70%);
+  }
+  
+  .theme-toggle-btn:hover .theme-bg {
+    background: radial-gradient(circle, rgba(var(--color-primary-500), 0.2) 0%, transparent 70%);
+  }
+  
+  /* Animations */
+  @keyframes drill-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  @keyframes at-field-glow {
+    0%, 100% { opacity: 0.7; filter: brightness(1); }
+    50% { opacity: 1; filter: brightness(1.2); }
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .theme-switcher {
+      @apply top-3 right-3;
+    }
+    
+    .theme-toggle-btn {
+      @apply w-10 h-10 p-2;
+    }
+    
+    .drill-small,
+    .at-field-icon {
+      width: 16px;
+      height: 16px;
+    }
+  }
+</style>
+
+<script>
+  // Theme switching functionality
+  class ThemeSwitcher {
+    constructor() {
+      this.init();
+    }
+    
+    init() {
+      // Get saved theme from localStorage or default to light
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      this.setTheme(savedTheme);
+      
+      // Add event listener to toggle button
+      const toggleBtn = document.getElementById('theme-toggle');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => this.toggleTheme());
+      }
+      
+      // Update theme name display
+      this.updateThemeNameDisplay();
+      
+      // Listen for system theme changes
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      mediaQuery.addEventListener('change', (e) => {
+        if (!localStorage.getItem('theme')) {
+          this.setTheme(e.matches ? 'dark' : 'light');
+        }
+      });
+    }
+    
+    getCurrentTheme() {
+      return document.documentElement.getAttribute('data-theme') || 'light';
+    }
+    
+    setTheme(theme) {
+      // Update document attribute
+      document.documentElement.setAttribute('data-theme', theme);
+      
+      // Save to localStorage
+      localStorage.setItem('theme', theme);
+      
+      // Update theme name display
+      this.updateThemeNameDisplay();
+      
+      // Trigger custom event for other components
+      window.dispatchEvent(new CustomEvent('themechange', { 
+        detail: { theme, themeName: this.getThemeName(theme) }
+      }));
+    }
+    
+    toggleTheme() {
+      const currentTheme = this.getCurrentTheme();
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      this.setTheme(newTheme);
+      
+      // Add a subtle animation effect
+      this.animateThemeChange();
+    }
+    
+    getThemeName(theme) {
+      return theme === 'light' ? 'Gurren Lagann' : 'Neon Genesis Evangelion';
+    }
+    
+    updateThemeNameDisplay() {
+      const themeNameEl = document.getElementById('theme-name');
+      if (themeNameEl) {
+        const currentTheme = this.getCurrentTheme();
+        themeNameEl.textContent = this.getThemeName(currentTheme);
+      }
+    }
+    
+    animateThemeChange() {
+      // Add a brief flash effect to indicate theme change
+      const toggleBtn = document.getElementById('theme-toggle');
+      if (toggleBtn) {
+        toggleBtn.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+          toggleBtn.style.transform = '';
+        }, 150);
+      }
+      
+      // Create a subtle ripple effect
+      this.createRippleEffect();
+    }
+    
+    createRippleEffect() {
+      const ripple = document.createElement('div');
+      ripple.className = 'theme-ripple fixed inset-0 pointer-events-none z-40';
+      ripple.style.background = `radial-gradient(circle, rgba(var(--color-primary-500), 0.1) 0%, transparent 70%)`;
+      ripple.style.transform = 'scale(0)';
+      ripple.style.transition = 'transform 0.6s ease-out, opacity 0.6s ease-out';
+      ripple.style.opacity = '1';
+      
+      document.body.appendChild(ripple);
+      
+      requestAnimationFrame(() => {
+        ripple.style.transform = 'scale(3)';
+        ripple.style.opacity = '0';
+      });
+      
+      setTimeout(() => {
+        document.body.removeChild(ripple);
+      }, 600);
+    }
+  }
+  
+  // Initialize theme switcher when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => new ThemeSwitcher());
+  } else {
+    new ThemeSwitcher();
+  }
+  
+  // Export for potential use by other components
+  window.ThemeSwitcher = ThemeSwitcher;
+</script>

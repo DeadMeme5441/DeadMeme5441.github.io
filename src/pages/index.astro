@@ -1,39 +1,210 @@
 ---
 import Base from "../layouts/Base.astro";
 ---
+
 <Base title="deadmeme.dev">
-  <section class="hero">
-    <div class="hero-inner">
-      <div>
-        <h1>Kick logic to the curb.</h1>
-        <p>Code, projects, and docs — powered by Astro. Inspired by spiral energy.</p>
+  <!-- Hero Section with Theme-Specific Content -->
+  <section class="relative overflow-hidden rounded-2xl border border-surface-200 dark:border-surface-800 bg-hero-gradient mb-12">
+    <div class="relative z-10 px-6 py-12 md:px-8 md:py-16">
+      <div class="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
+        <!-- Hero Content -->
+        <div class="flex-1 text-center lg:text-left">
+          <h1 class="hero-text text-responsive-4xl font-black mb-4 leading-tight">
+            Kick logic to the curb.
+          </h1>
+          <p class="text-responsive-lg text-surface-600 dark:text-surface-300 mb-8 max-w-2xl">
+            Code, projects, and docs — powered by Astro. 
+            <span class="font-semibold bg-brand-gradient text-gradient">Inspired by spiral energy.</span>
+          </p>
+          
+          <!-- CTA Buttons with Theme-Specific Styling -->
+          <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            <a 
+              href="/projects" 
+              class="group inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-glow transition-all duration-300 transform hover:-translate-y-1"
+            >
+              <span>Explore Projects</span>
+              <div class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1">
+                <div class="drill-small opacity-80"></div>
+              </div>
+            </a>
+            <a 
+              href="/docs" 
+              class="group inline-flex items-center gap-2 px-6 py-3 bg-surface-100 dark:bg-surface-800 hover:bg-surface-200 dark:hover:bg-surface-700 text-surface-900 dark:text-surface-100 rounded-xl font-semibold border border-surface-200 dark:border-surface-700 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+            >
+              <span>Read Docs</span>
+              <div class="w-4 h-4 opacity-0 dark:opacity-80 transition-all duration-300 group-hover:translate-x-1">
+                <div class="at-field-icon"></div>
+              </div>
+            </a>
+          </div>
+        </div>
+        
+        <!-- Hero Visual Elements -->
+        <div class="flex-shrink-0 relative">
+          <!-- Light theme decorations -->
+          <div class="hidden lg:block opacity-80 dark:opacity-0 transition-opacity duration-500">
+            <div class="relative">
+              <div class="spiral-energy animate-pulse"></div>
+              <div class="absolute -top-4 -right-4">
+                <div class="kamina-glasses"></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Dark theme decorations -->
+          <div class="hidden lg:block opacity-0 dark:opacity-80 transition-opacity duration-500">
+            <div class="relative">
+              <div class="eva-silhouette"></div>
+              <div class="absolute -top-6 -right-6">
+                <div class="cross-light"></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div>
-        <a class="btn" href="/projects">Explore Projects</a>
-        <a class="btn secondary" style="margin-left:10px" href="/docs">Read Docs</a>
+    </div>
+    
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-5 dark:opacity-10">
+      <div class="absolute top-1/4 left-1/4 panel-lines w-32 h-32"></div>
+      <div class="absolute bottom-1/4 right-1/4 opacity-0 dark:opacity-100">
+        <div class="magi-terminal"></div>
       </div>
     </div>
   </section>
 
-  <div class="grid">
-    <div class="card">
-      <h2>Blog</h2>
-      <p class="muted">Occasional long-form posts on experiments and builds.</p>
-      <a class="btn secondary" href="/blog">Go to blog →</a>
+  <!-- Features Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+    <!-- Blog Card -->
+    <div class="group bg-surface-0 dark:bg-surface-900 rounded-xl border border-surface-200 dark:border-surface-800 p-6 shadow-md hover:shadow-glow transition-all duration-300 transform hover:-translate-y-1">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h2 class="text-xl font-bold text-surface-900 dark:text-surface-100 mb-3">Blog</h2>
+          <p class="text-surface-600 dark:text-surface-400 mb-4 leading-relaxed">
+            Occasional long-form posts on experiments and builds.
+          </p>
+          <a 
+            href="/blog" 
+            class="inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors duration-200"
+          >
+            <span>Go to blog</span>
+            <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
     </div>
-    <div class="card">
-      <h2>Devlog</h2>
-      <p class="muted">Short updates and notes from the trenches.</p>
-      <a class="btn secondary" href="/devlog">Go to devlog →</a>
+
+    <!-- Devlog Card -->
+    <div class="group bg-surface-0 dark:bg-surface-900 rounded-xl border border-surface-200 dark:border-surface-800 p-6 shadow-md hover:shadow-glow transition-all duration-300 transform hover:-translate-y-1">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-12 h-12 bg-secondary-100 dark:bg-secondary-900/30 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-secondary-600 dark:text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h2 class="text-xl font-bold text-surface-900 dark:text-surface-100 mb-3">Devlog</h2>
+          <p class="text-surface-600 dark:text-surface-400 mb-4 leading-relaxed">
+            Short updates and notes from the trenches.
+          </p>
+          <a 
+            href="/devlog" 
+            class="inline-flex items-center gap-2 text-secondary-600 dark:text-secondary-400 hover:text-secondary-700 dark:hover:text-secondary-300 font-medium transition-colors duration-200"
+          >
+            <span>Go to devlog</span>
+            <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
     </div>
-    <div class="card">
-      <h2>Docs</h2>
-      <p class="muted">Project references like google-adk-extras and agent-compose-kit.</p>
-      <a class="btn secondary" href="/docs">Browse docs →</a>
+
+    <!-- Docs Card -->
+    <div class="group bg-surface-0 dark:bg-surface-900 rounded-xl border border-surface-200 dark:border-surface-800 p-6 shadow-md hover:shadow-glow transition-all duration-300 transform hover:-translate-y-1 md:col-span-2 lg:col-span-1">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-12 h-12 bg-accent-100 dark:bg-accent-900/30 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-accent-600 dark:text-accent-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h2 class="text-xl font-bold text-surface-900 dark:text-surface-100 mb-3">Docs</h2>
+          <p class="text-surface-600 dark:text-surface-400 mb-4 leading-relaxed">
+            Project references like google-adk-extras and agent-compose-kit.
+          </p>
+          <a 
+            href="/docs" 
+            class="inline-flex items-center gap-2 text-accent-600 dark:text-accent-400 hover:text-accent-700 dark:hover:text-accent-300 font-medium transition-colors duration-200"
+          >
+            <span>Browse docs</span>
+            <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
-  <style>
-    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:18px; margin-top:14px }
-    h2 { margin:0 0 6px }
-  </style>
+
+  <!-- Theme Demo Section -->
+  <section class="mt-16 mb-12">
+    <div class="text-center mb-8">
+      <h2 class="text-responsive-2xl font-bold text-surface-900 dark:text-surface-100 mb-4">
+        Dual Theme Experience
+      </h2>
+      <p class="text-responsive-base text-surface-600 dark:text-surface-400 max-w-2xl mx-auto">
+        Switch between the hot-blooded energy of Gurren Lagann and the psychological depth of Evangelion. 
+        Each theme brings its own unique visual artifacts and atmosphere.
+      </p>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Light Theme Preview -->
+      <div class="bg-surface-0 dark:bg-surface-900 rounded-xl border border-surface-200 dark:border-surface-800 p-6 text-center">
+        <div class="mb-4">
+          <h3 class="text-lg font-bold text-surface-900 dark:text-surface-100 mb-2">Gurren Lagann</h3>
+          <p class="text-sm text-surface-600 dark:text-surface-400">Hot-blooded Light Theme</p>
+        </div>
+        <div class="flex justify-center items-center gap-4 mb-4">
+          <div class="drill opacity-80"></div>
+          <div class="spiral-energy"></div>
+          <div class="kamina-glasses"></div>
+        </div>
+        <div class="flex justify-center">
+          <div class="flame-effect"></div>
+        </div>
+      </div>
+      
+      <!-- Dark Theme Preview -->
+      <div class="bg-surface-0 dark:bg-surface-900 rounded-xl border border-surface-200 dark:border-surface-800 p-6 text-center">
+        <div class="mb-4">
+          <h3 class="text-lg font-bold text-surface-900 dark:text-surface-100 mb-2">Evangelion</h3>
+          <p class="text-sm text-surface-600 dark:text-surface-400">Psychological Dark Theme</p>
+        </div>
+        <div class="flex justify-center items-center gap-4 mb-4">
+          <div class="at-field"></div>
+          <div class="cross-light"></div>
+          <div class="eva-silhouette"></div>
+        </div>
+        <div class="flex justify-center">
+          <div class="lcl-liquid"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="text-center mt-8">
+      <p class="text-sm text-surface-500 dark:text-surface-400">
+        Use the theme switcher in the top right to experience both themes
+      </p>
+    </div>
+  </section>
 </Base>
