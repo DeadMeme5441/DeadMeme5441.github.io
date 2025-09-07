@@ -73,6 +73,8 @@ jobs:
       - name: Include CNAME in artifact
         run: |
           cp CNAME dist/ || true
+          # Guard: ensure no Jekyll processing if this artifact is ever used by Pages directly
+          touch dist/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
