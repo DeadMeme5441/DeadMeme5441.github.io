@@ -2,14 +2,38 @@
 import Base from "../layouts/Base.astro";
 ---
 <Base title="deadmeme.dev">
-  <h1>deadmeme.dev</h1>
-  <p>Developer log, blog, projects, and documentation hub.</p>
-  <ul>
-    <li><a href="/blog">Blog</a></li>
-    <li><a href="/devlog">Devlog</a></li>
-    <li><a href="/projects">Projects</a></li>
-    <li><a href="/docs">Docs</a></li>
-    <li><a href="/resume">Resume</a></li>
-  </ul>
-</Base>
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <h1>Kick logic to the curb.</h1>
+        <p>Code, projects, and docs — powered by Astro. Inspired by spiral energy.</p>
+      </div>
+      <div>
+        <a class="btn" href="/projects">Explore Projects</a>
+        <a class="btn secondary" style="margin-left:10px" href="/docs">Read Docs</a>
+      </div>
+    </div>
+  </section>
 
+  <div class="grid">
+    <div class="card">
+      <h2>Blog</h2>
+      <p class="muted">Occasional long-form posts on experiments and builds.</p>
+      <a class="btn secondary" href="/blog">Go to blog →</a>
+    </div>
+    <div class="card">
+      <h2>Devlog</h2>
+      <p class="muted">Short updates and notes from the trenches.</p>
+      <a class="btn secondary" href="/devlog">Go to devlog →</a>
+    </div>
+    <div class="card">
+      <h2>Docs</h2>
+      <p class="muted">Project references like google-adk-extras and agent-compose-kit.</p>
+      <a class="btn secondary" href="/docs">Browse docs →</a>
+    </div>
+  </div>
+  <style>
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:18px; margin-top:14px }
+    h2 { margin:0 0 6px }
+  </style>
+</Base>
