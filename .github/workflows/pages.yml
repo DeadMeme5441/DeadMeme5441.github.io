@@ -1,4 +1,4 @@
-name: Deploy User Pages
+name: Build and Deploy Site
 
 on:
   push:
@@ -17,22 +17,60 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
+      - name: Checkout main site
         uses: actions/checkout@v4
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Prepare site
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Build project docs into public/docs
+        env:
+          GH_OWNER: DeadMeme5441
         run: |
-          mkdir -p site
-          cp index.html site/
-          cp CNAME site/ || true
+          set -euxo pipefail
+          mkdir -p public/docs
+          while IFS= read -r repo || [[ -n "$repo" ]]; do
+            # skip comments and empty lines
+            [[ -z "${repo}" || "${repo}" =~ ^# ]] && continue || true
+            echo "Building docs for ${repo}"
+            git clone --depth 1 "https://github.com/${GH_OWNER}/${repo}.git" "_sources/${repo}"
+            if [ -f "_sources/${repo}/mkdocs.yml" ]; then
+              pushd "_sources/${repo}"
+              # Install docs extras if available, otherwise ensure mkdocs is present
+              uv pip install --system .[docs] || uv pip install --system mkdocs mkdocs-material
+              uv run mkdocs build --strict --site-dir "${GITHUB_WORKSPACE}/public/docs/${repo}"
+              popd
+            else
+              echo "No mkdocs.yml found in ${repo}, skipping"
+            fi
+          done < config/docs-sources.txt
+
+      - name: Install and build Astro site
+        run: |
+          npm ci || npm i
+          npm run build
+
+      - name: Include CNAME in artifact
+        run: |
+          cp CNAME dist/ || true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: dist
 
       - name: Deploy to GitHub Pages
         id: deployment

@@ -1,0 +1,45 @@
+---
+const { title = 'deadmeme.dev', description = 'Hrishikesh — blog, devlog, projects, docs' } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.ico" />
+    <style>
+      :root { --bg:#0b0e14; --fg:#e6edf3; --muted:#9da7b3; --card:#121822; --accent:#7aa2f7 }
+      * { box-sizing: border-box }
+      body { margin:0; font:16px system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background:var(--bg); color:var(--fg); }
+      a { color: var(--accent); text-decoration: none }
+      header { border-bottom:1px solid #1e2430; }
+      nav { display:flex; gap:16px; padding:14px 18px; max-width:1040px; margin:0 auto }
+      main { max-width:1040px; margin:0 auto; padding:24px 18px }
+      footer { color:var(--muted); border-top:1px solid #1e2430; padding:20px 18px; max-width:1040px; margin:40px auto 0 }
+      .spacer { flex:1 }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="/">home</a>
+        <a href="/blog">blog</a>
+        <a href="/devlog">devlog</a>
+        <a href="/projects">projects</a>
+        <a href="/docs">docs</a>
+        <span class="spacer"></span>
+        <a href="/resume">resume</a>
+        <a href="https://github.com/DeadMeme5441" target="_blank" rel="noreferrer">github</a>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer>
+      © {new Date().getFullYear()} Hrishikesh V • deadmeme.dev
+    </footer>
+  </body>
+  </html>
+
