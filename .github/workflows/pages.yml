@@ -51,6 +51,13 @@ jobs:
               pushd "_sources/${repo}"
               # Install docs extras if available, otherwise ensure mkdocs is present
               uv pip install --system .[docs] || uv pip install --system mkdocs mkdocs-material
+              # Override site_url to point under deadmeme.dev/docs/<repo>/ for canonical links & sitemap
+              SITE_URL="https://deadmeme.dev/docs/${repo}/"
+              if grep -q "^site_url:" mkdocs.yml; then
+                sed -i.bak -E "s|^site_url:.*$|site_url: ${SITE_URL}|g" mkdocs.yml
+              else
+                printf "\nsite_url: %s\n" "${SITE_URL}" >> mkdocs.yml
+              fi
               uv run mkdocs build --strict --site-dir "${GITHUB_WORKSPACE}/public/docs/${repo}"
               popd
             else

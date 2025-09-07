@@ -1,11 +1,26 @@
 ---
 import Base from "../../layouts/Base.astro";
+import fs from 'node:fs';
+import path from 'node:path';
+
+const cfgPath = path.resolve(Astro.cwd ?? '.', 'config', 'docs-sources.txt');
+let repos: string[] = [];
+try {
+  const raw = fs.readFileSync(cfgPath, 'utf8');
+  repos = raw
+    .split(/\r?\n/g)
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith('#'));
+} catch (e) {
+  repos = ['google-adk-extras', 'agent-compose-kit'];
+}
 ---
 <Base title="Docs — deadmeme.dev">
   <h1>Docs</h1>
   <p>Project documentation hosted under this site.</p>
   <ul>
-    <li><a href="/docs/google-adk-extras">google-adk-extras</a></li>
-    <li><a href="/docs/agent-compose-kit">agent-compose-kit</a></li>
+    {repos.map((r) => (
+      <li><a href={`/docs/${r}`}>{r}</a></li>
+    ))}
   </ul>
 </Base>

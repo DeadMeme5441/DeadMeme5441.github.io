@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
+    "docs:build": "scripts/build-docs.sh",
+    "docs:clean": "rm -rf _sources public/docs .venv-docs",
     "build": "astro build",
     "preview": "astro preview",
     "format": "prettier -w ."
@@ -16,4 +18,3 @@
     "prettier": "^3.3.3"
   }
 }
-
