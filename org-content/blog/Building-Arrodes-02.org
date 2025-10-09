@@ -1,7 +1,7 @@
 #+TITLE: Reading the source code of Emacs!
 #+DATE: 2025-10-09
-#+DESCRIPTION: One-line teaser for the blog index and RSS feed.
-#+OPTIONS: toc:nil num:nil
+#+DESCRIPTION: Reading the source code of emacs, one by one.
+#+OPTIONS: toc:nil num:nil 
 #+HUGO_BASE_DIR: ../../src
 #+HUGO_SECTION: blog
 #+HUGO_AUTO_SET_LASTMOD: t
@@ -13,9 +13,9 @@
 :EXPORT_DATE: 2025-10-09
 :EXPORT_DESCRIPTION: Reading the source code of emacs, one by one.
 :EXPORT_HUGO_TAGS: arrodes, editor, emacs, elisp
-:EXPORT_HUGO_DRAFT: true
+:EXPORT_HUGO_DRAFT: false
+:EXPORT_OPTIONS:
 :END:
-#+HUGO_CUSTOM_FRONT_MATTER: heroImage null
 
 So when I decided to build my text editor - reality hit me in the face quite hard. I realised I know nothing about how text editors work - so I started out by watching Numberphile's
 video on it - all that did was make me feel worse about the shit I didn't know. 

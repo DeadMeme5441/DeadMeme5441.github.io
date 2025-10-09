@@ -1,11 +1,10 @@
 ---
 title: "Reading the source code of Emacs!"
 author: ["DeadMeme5441"]
-description: "One-line teaser for the blog index and RSS feed."
+description: "Reading the source code of emacs, one by one."
 date: 2025-10-09
-lastmod: 2025-10-09T18:17:49+05:30
+lastmod: 2025-10-09T18:26:04+05:30
 draft: false
-heroImage: "null"
 ---
 
 ## Reading the source code of Emacs! {#Building-Arrodes-02}

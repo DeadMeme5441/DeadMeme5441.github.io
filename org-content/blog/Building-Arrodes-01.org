@@ -1,7 +1,7 @@
 #+TITLE: Building Arrodes - 01
 #+DATE: 2025-10-09
 #+DESCRIPTION: Building my own text editor with C++ and Raylib.
-#+OPTIONS: toc:nil num:nil
+#+OPTIONS: toc:nil num:nil :nil
 #+HUGO_BASE_DIR: ../../src
 #+HUGO_SECTION: blog
 #+HUGO_AUTO_SET_LASTMOD: t
@@ -15,7 +15,6 @@
 :EXPORT_HUGO_TAGS: Arrodes, Editor, Raylib, C++
 :EXPORT_HUGO_DRAFT: false
 :END:
-#+HUGO_CUSTOM_FRONT_MATTER: heroImage null
 
 
 ** Background
