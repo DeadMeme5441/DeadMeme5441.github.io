@@ -1,0 +1,98 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+
+interface Props {
+	title: string;
+	description?: string;
+	pubDate: Date;
+	category: string;
+	link?: string;
+	tags: string[];
+}
+
+const { title, description, pubDate, category, link, tags } = Astro.props as Props;
+const categoryLabel = category
+	.split('-')
+	.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+	.join(' ');
+---
+
+<html lang="en">
+	<head>
+		<BaseHead title={title} description={description ?? `${category} find`} />
+		<style>
+			main {
+				width: min(720px, calc(100% - 2rem));
+				margin: 0 auto;
+				padding: 2rem 0;
+				color: rgb(var(--gray-dark));
+			}
+			h1 {
+				margin-bottom: 0.5rem;
+			}
+			.meta {
+				color: rgb(var(--gray));
+				margin-bottom: 1rem;
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+			}
+			.tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+				margin: 1rem 0 0;
+				padding: 0;
+				list-style: none;
+			}
+			.tag {
+				background: rgba(var(--accent), 0.12);
+				color: rgb(var(--accent));
+				border-radius: 999px;
+				padding: 0.25rem 0.75rem;
+				font-size: 0.75rem;
+			}
+			.external-link {
+				color: rgb(var(--accent));
+				text-decoration: underline;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<header>
+				<h1>{title}</h1>
+				<div class="meta">
+					<FormattedDate date={pubDate} />
+					<span aria-hidden="true">•</span>
+					<span>{categoryLabel}</span>
+				</div>
+				{link && (
+					<p>
+						External link:{' '}
+						<a class="external-link" href={link} target="_blank" rel="noopener noreferrer">
+							{link}
+						</a>
+					</p>
+				)}
+			</header>
+			<section>
+				<slot />
+			</section>
+			{tags.length > 0 && (
+				<footer>
+					<ul class="tags">
+						{tags.map((tag) => (
+							<li class="tag">{tag}</li>
+						))}
+					</ul>
+				</footer>
+			)}
+		</main>
+		<Footer />
+	</body>
+</html>

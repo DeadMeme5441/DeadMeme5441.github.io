@@ -1,62 +1,62 @@
-# Astro Starter Kit: Blog
+# deadmeme.dev
 
-```sh
-bun create astro@latest -- --template blog
+Personal site built with [Astro](https://astro.build) and content sourced from
+Org mode via [ox-hugo](https://ox-hugo.scripter.co/).
+
+## Project layout
+
 ```
-
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-Features:
-
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and OpenGraph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-├── public/
+├── org-content/             # Org sources grouped by collection
+│   ├── blog/
+│   ├── interesting-stuff/
+│   └── thoughts-and-opinions/
 ├── src/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
+│   ├── components/
+│   ├── content/             # Markdown emitted by ox-hugo
+│   ├── layouts/
+│   └── pages/
 ├── astro.config.mjs
-├── README.md
 ├── package.json
 └── tsconfig.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Key routes:
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+- `/blog` — long-form posts
+- `/interesting-stuff` — curated bookmarks grouped by category
+- `/thoughts-and-opinions` — single rolling page for ongoing notes
 
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
+## Writing workflow (Org → Astro)
 
-Any static assets, like images, can be placed in the `public/` directory.
+1. Open a template in `org-content/` and duplicate the example subtree.
+2. Update the `:EXPORT_*:` properties and custom front matter hints. Category
+   keys for the link log must match one of:
+   `websites`, `twitter-posts`, `videos`, `books`, `articles`, `podcasts`, `other`.
+3. Run `org-hugo-export-to-md` (`C-c C-e H H`) on the subtree. The generated
+   Markdown lands in `src/content/...` thanks to `.dir-locals.el`.
+4. Commit both the Org source and the exported Markdown.
 
-## 🧞 Commands
+`content.config.ts` maps ox-hugo's default `date`/`lastmod` fields onto the Astro
+schemas, so you only need to manage the standard ox-hugo properties.
 
-All commands are run from the root of the project, from a terminal:
+## Development
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun dev`             | Starts local dev server at `localhost:4321`      |
-| `bun build`           | Build your production site to `./dist/`          |
-| `bun preview`         | Preview your build locally, before deploying     |
-| `bun astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun astro -- --help` | Get help using the Astro CLI                     |
+```sh
+bun install
+bun run dev       # http://localhost:4321
+bun run build     # output in dist/
+```
 
-## 👀 Want to learn more?
+Optional checks:
 
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+```sh
+bun run astro check
+```
 
-## Credit
+## Deployment
 
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+The repo ships with a GitHub Actions workflow (`.github/workflows/deploy.yml`)
+that builds the site and publishes the static assets to GitHub Pages. Set the
+repository's Pages source to **GitHub Actions** and the action will deploy on
+pushes to `main`. A `public/CNAME` file pins the production domain to
+`deadmeme.dev`.

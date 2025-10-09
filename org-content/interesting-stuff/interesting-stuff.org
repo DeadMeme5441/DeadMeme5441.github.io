@@ -1,0 +1,23 @@
+#+TITLE: Interesting Stuff
+#+HUGO_BASE_DIR: ../src
+#+HUGO_SECTION: interesting-stuff
+#+HUGO_AUTO_SET_LASTMOD: t
+#+HUGO_FRONT_MATTER_FORMAT: yaml
+
+* Websites
+** Example Site (draft template)
+:PROPERTIES:
+:EXPORT_FILE_NAME: websites/example-site.md
+:EXPORT_DATE: 2025-10-08
+:EXPORT_DESCRIPTION: A sentence on why this link matters.
+:EXPORT_HUGO_TAGS: inspiration,web
+:EXPORT_HUGO_DRAFT: true
+:END:
+#+HUGO_CUSTOM_FRONT_MATTER: pubDate value(:export_date)
+#+HUGO_CUSTOM_FRONT_MATTER+: category "websites"
+#+HUGO_CUSTOM_FRONT_MATTER+: link "https://example.com"
+
+Replace this paragraph with your notes about the website. Each subtree exports to
+=src/content/interesting-stuff=. Duplicate the subtree and adjust =category=
+(one of =websites=, =twitter-posts=, =videos=, =books=, =articles=, =podcasts=, =other=)
+for each saved item.
