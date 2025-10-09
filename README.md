@@ -28,10 +28,13 @@ Key routes:
 
 ## Writing workflow (Org → Astro)
 
-1. Open a template in `org-content/` and duplicate the example subtree.
-2. Update the `:EXPORT_*:` properties and custom front matter hints. Category
-   keys for the link log must match one of:
-   `websites`, `twitter-posts`, `videos`, `books`, `articles`, `podcasts`, `other`.
+1. For long-form posts, copy `org-content/blog/post-template.org` to a new file
+   (one Org file per article) and edit the single subtree inside. For bookmark
+   feeds and the thoughts log, duplicate the relevant subtree in the existing
+   files.
+2. Update the `:EXPORT_*:` properties and custom front matter hints. Link-log
+   categories must be one of `websites`, `twitter-posts`, `videos`, `books`,
+   `articles`, `podcasts`, `other`.
 3. Run `org-hugo-export-to-md` (`C-c C-e H H`) on the subtree. The generated
    Markdown lands in `src/content/...` thanks to `.dir-locals.el`.
 4. Commit both the Org source and the exported Markdown.
@@ -55,7 +58,7 @@ bun run astro check
 
 ## Deployment
 
-The repo ships with a GitHub Actions workflow (`.github/workflows/deploy.yml`)
+The repo ships with a GitHub Actions workflow (`.github/workflows/astro.yml`)
 that builds the site and publishes the static assets to GitHub Pages. Set the
 repository's Pages source to **GitHub Actions** and the action will deploy on
 pushes to `main`. A `public/CNAME` file pins the production domain to

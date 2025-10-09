@@ -1,0 +1,29 @@
+#+TITLE: Example Post Title
+#+HUGO_BASE_DIR: ../src
+#+HUGO_SECTION: blog
+#+HUGO_AUTO_SET_LASTMOD: t
+#+HUGO_FRONT_MATTER_FORMAT: yaml
+
+* Post Title Goes Here
+:PROPERTIES:
+:EXPORT_FILE_NAME: example-post.md
+:EXPORT_DATE: 2025-10-09
+:EXPORT_DESCRIPTION: One-liner teaser for the blog index.
+:EXPORT_HUGO_TAGS: example,blog
+:EXPORT_HUGO_DRAFT: true
+:END:
+#+HUGO_CUSTOM_FRONT_MATTER: pubDate value(:export_date)
+#+HUGO_CUSTOM_FRONT_MATTER+: updatedDate value(:export_lastmod)
+#+HUGO_CUSTOM_FRONT_MATTER+: heroImage null
+
+Replace this text with your article content. Keep only one subtree per file so
+this file mirrors the structure of an exported Markdown document. When you’re
+ready to publish:
+
+1. Set a unique `:EXPORT_FILE_NAME:` (e.g., `my-first-post.md`).
+2. Update the heading and metadata.
+3. Toggle `:EXPORT_HUGO_DRAFT:` to `false`.
+4. Run `org-hugo-export-to-md` ( `C-c C-e H H` ).
+
+You can duplicate this file for each new post. One file → one subtree → one
+Markdown export in `src/content/blog/`.
