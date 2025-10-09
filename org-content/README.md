@@ -12,8 +12,9 @@ This folder keeps the Org → Markdown sources that `ox-hugo` exports into
 1. `.dir-locals.el` already points `org-hugo-base-dir` at `../src`, so exports
    land inside Astro's `src/content` tree.
 2. **Blog posts**: copy `blog/post-template.org` to a new file (one Org file per
-   article), adjust the property drawer, then export the single subtree with
-   `M-x org-hugo-export-to-md` (`C-c C-e H H`).
+   article), update the file-level `#+DATE`/`#+DESCRIPTION` and property drawer,
+   then export the single subtree with `M-x org-hugo-export-to-md`
+   (`C-c C-e H H`).
 3. **Interesting stuff / Thoughts**: keep using the provided subtrees inside
    their respective files; duplicate a subtree, update metadata, and export it.
 4. Commit the generated Markdown files under `src/content/...` alongside the Org
@@ -27,9 +28,9 @@ schema):
 | Astro field        | Provided by ox-hugo                                         |
 | ------------------ | ---------------------------------------------------------- |
 | `title`            | Subtree heading                                            |
-| `description`      | `:EXPORT_DESCRIPTION:`                                     |
-| `pubDate`          | `:EXPORT_DATE:` (via `pubDate value(:export_date)`)        |
-| `updatedDate`      | Auto-set by `org-hugo-auto-set-lastmod`                    |
+| `description`      | File-level `#+DESCRIPTION` or `:EXPORT_DESCRIPTION:`       |
+| `pubDate`          | File-level `#+DATE` or `:EXPORT_DATE:`                     |
+| `updatedDate`      | Auto-set by `org-hugo-auto-set-lastmod` (`lastmod`)        |
 | `tags`             | `:EXPORT_HUGO_TAGS:`                                        |
 | `draft`            | `:EXPORT_HUGO_DRAFT:` (defaults false when omitted)        |
 | `category`         | `#+HUGO_CUSTOM_FRONT_MATTER: category "..."` (link log)    |

@@ -32,7 +32,8 @@ Key routes:
    (one Org file per article) and edit the single subtree inside. For bookmark
    feeds and the thoughts log, duplicate the relevant subtree in the existing
    files.
-2. Update the `:EXPORT_*:` properties and custom front matter hints. Link-log
+2. Update the file-level `#+DATE`/`#+DESCRIPTION` (for blog posts) and the
+   `:EXPORT_*:` properties/custom front matter hints. Link-log
    categories must be one of `websites`, `twitter-posts`, `videos`, `books`,
    `articles`, `podcasts`, `other`.
 3. Run `org-hugo-export-to-md` (`C-c C-e H H`) on the subtree. The generated
