@@ -11,11 +11,11 @@ tags:
   - C++
 ---
 
-## Building Arrodes (My own text editor). {#Building-Arrodes-01}
+## Building Arrodes (My own text editor)
 
 
 
-### Background {#background}
+### Background
 
 I really really like Emacs. I don't know how to use it really well, but I really like Emacs. I tried building my own configuration,
 but that didn't work out really well - I just went back to doom emacs and I just settled for writing config.el and calling it a day.
@@ -33,7 +33,7 @@ And also - given raylib is a "game development" library, I can even put an anime
 ahead of myself, but that's been the idea basically. Also I would like to learn "proper" game development one day, so this seemed like a fun side project to get on.
 
 
-### The name Arrodes {#the-name-arrodes}
+### The name Arrodes
 
 The name Arrodes comes from Lord of the Mysteries - a chinese webnovel that has themes of steampunk, lovecraftian horrors, magic and SCP style objects known as sealed
 artifacts. Arrodes is one such "sealed artifact" - it's a mirror that you can ask any question to, and it will answer. But the catch is - it gets to ask you one question
@@ -43,14 +43,10 @@ I guess I really like the concept of the character, and how a programmer must tr
 the editor asks a "question back", i.e. throws an error etc. - he has to do right by it, or be smote by the heavens himself. I guess that's the concept I was going for.
 
 
-### What I'm using to build this site. {#what-i-m-using-to-build-this-site-dot}
+### What I'm using to build this site
 
-The following are what I'm using
+Here are the main pieces powering Arrodes:
 
--   [Raylib](https://www.raylib.com)
-    This library is written in C, but I wanted to learn C++, so I chose the C++ starter template below.
--   [Raylib CPP Starter](https://github.com/CapsCollective/raylib-cpp-starter)
-    I used this template to setup the repo.
--   [Build Your Own Text Editor](https://viewsourcecode.org/snaptoken/kilo/index.html)
-    This is the "tutorial series" I'm loosely referencing as stuff I need to build out to actually have
-    a complete text editor.
+- [Raylib](https://www.raylib.com) – core graphics library that drives the UI.
+- [Raylib CPP Starter](https://github.com/CapsCollective/raylib-cpp-starter) – boilerplate that wraps Raylib in a C++ project structure.
+- [Build Your Own Text Editor](https://viewsourcecode.org/snaptoken/kilo/index.html) – tutorial series I'm loosely following to plan editor features.

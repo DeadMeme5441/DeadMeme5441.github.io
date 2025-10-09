@@ -1,12 +1,13 @@
 #+TITLE: Building Arrodes - 01
 #+DATE: 2025-10-09
 #+DESCRIPTION: Building my own text editor with C++ and Raylib.
+#+OPTIONS: toc:nil num:nil
 #+HUGO_BASE_DIR: ../../src
 #+HUGO_SECTION: blog
 #+HUGO_AUTO_SET_LASTMOD: t
 #+HUGO_FRONT_MATTER_FORMAT: yaml
 
-* Building Arrodes (My own text editor).
+* Building Arrodes (My own text editor)
 :PROPERTIES:
 :EXPORT_FILE_NAME: Building-Arrodes-01.md
 :EXPORT_DATE: 2025-10-09
@@ -43,13 +44,11 @@ or make you do a task in return. If you lie, or refuse the task, you get smited 
 I guess I really like the concept of the character, and how a programmer must treat his editor/computer the same way - he gets to ask the editor to do things for him, and when
 the editor asks a "question back", i.e. throws an error etc. - he has to do right by it, or be smote by the heavens himself. I guess that's the concept I was going for.
 
-** What I'm using to build this site.
-The following are what I'm using
-- [[https://www.raylib.com][Raylib]]
-  This library is written in C, but I wanted to learn C++, so I chose the C++ starter template below.
-- [[https://github.com/CapsCollective/raylib-cpp-starter][Raylib CPP Starter]]
-  I used this template to setup the repo.
-- [[https://viewsourcecode.org/snaptoken/kilo/index.html][Build Your Own Text Editor]] 
-  This is the "tutorial series" I'm loosely referencing as stuff I need to build out to actually have
-  a complete text editor.
+** What I'm using to build this site
+
+The following are what I'm using:
+
+- [[https://www.raylib.com][Raylib]] :: Core graphics library that powers the UI layer.
+- [[https://github.com/CapsCollective/raylib-cpp-starter][Raylib CPP Starter]] :: Boilerplate that sets up a C++ project structure around Raylib.
+- [[https://viewsourcecode.org/snaptoken/kilo/index.html][Build Your Own Text Editor]] :: The tutorial series I'm loosely following to map out editor features.
   
