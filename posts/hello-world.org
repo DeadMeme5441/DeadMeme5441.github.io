@@ -1,0 +1,15 @@
+#+TITLE: Hello World
+#+DATE: <2025-12-15>
+#+FILETAGS: :meta:
+
+This is my first post. Written in org-mode, published automatically.
+
+* What is this?
+
+Just me writing what's in my head. No pretense.
+
+* Code example
+
+#+BEGIN_SRC python
+print("hello world")
+#+END_SRC

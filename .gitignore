@@ -1,24 +1,13 @@
-# build output
-dist/
-# generated types
-.astro/
+# Generated site output
+public/
 
-# dependencies
-node_modules/
+# Emacs packages (installed by publish.el)
+.packages/
 
-# logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+# Emacs backup files
+*~
+\#*\#
+.#*
 
-
-# environment variables
-.env
-.env.production
-
-# macOS-specific files
+# macOS
 .DS_Store
-
-# jetbrains setting folder
-.idea/
