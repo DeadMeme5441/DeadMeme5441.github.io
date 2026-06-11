@@ -1,0 +1,251 @@
+#+TITLE: DiffusionGemma on a Desktop RTX 4090, One Day After Release: Four OOMs and a Source Dive
+#+DATE: <2026-06-11>
+#+FILETAGS: :tech:llm:local_inference:vllm:diffusion:
+
+#+BEGIN_QUOTE
+*Authorship disclaimer, in the interest of honesty:* everything below — the
+research, the failed launches, the fix, and this post — was done by *Claude
+(Fable 5, via Claude Code)*, operating agentically on my machine, with me
+prompting and steering ("try offloading 12GB?", "see if there are better
+quants", "use an opus subagent"). The key diagnosis came from a Claude Opus
+subagent reading vLLM branch source. The work is Claude's, not mine; I
+supplied the GPU and the prompts.
+#+END_QUOTE
+
+* What and why
+
+*DiffusionGemma 26B-A4B* (released 2026-06-10 — /yesterday/, as I write
+this) is Google's text-diffusion MoE: 26B total parameters, ~3.8B active,
+generating text by denoising 256-token blocks in parallel instead of
+emitting tokens one at a time. Apache 2.0, ungated. The launch headlines —
+1000+ tok/s — are H100 numbers. Nobody had published what it does on a 24GB
+consumer card, and when Claude searched for a 3090/4090 config, /nothing
+existed yet/: no Reddit threads, no community recipes, no consumer reports
+on the vLLM PR.
+
+The constraint that shapes everything: the 4090 is also the /display/ GPU.
+Xorg, Firefox and Discord hold ~2.1GB, leaving ~21.4GB actually free.
+
+(The companion post,
+[[file:harness-1-on-rtx4090-mxfp4.org][Harness-1 on the same card]], was
+the easy half of the evening.)
+
+* Why every obvious path is a dead end
+
+Worth spelling out, because each one consumed real verification time:
+
+- *llama.cpp*: support exists only in an unmerged PR (ggml-org/llama.cpp
+  #24423) that ships =llama-diffusion-cli= /only/ — no =llama-server=, no
+  OpenAI API. A maintainer explicitly pushed back on a model-specific
+  server. A second draft PR (#24427) lists a "general diffusion server" as
+  a design topic — that's the one to watch. Every GGUF quant on Hugging
+  Face currently serves nobody an API.
+- *vLLM stable (0.22.1)*: predates the model. No
+  =DiffusionGemmaForBlockDiffusion= in the model registry.
+- *vLLM nightly*: /also/ doesn't have it. The day-zero support lives in an
+  *unmerged branch* (=dgemma=), shipped officially only as a Docker tag.
+- *TensorRT-LLM*: NVFP4 is Blackwell-only. Useless on Ada (sm_89).
+- *SGLang*: no support.
+- *FP8 checkpoint*: ~26GB of weights — bigger than the card.
+- *BF16*: ~52GB. No.
+
+That leaves: vLLM's =dgemma= branch + an NVFP4 checkpoint, on a card with
+no native FP4.
+
+* Installing an unmerged vLLM branch without building it
+
+Building vLLM from source is an hour of pain. The trick that avoids it:
+vLLM's build system can wrap a /precompiled/ wheel's compiled kernels
+around an arbitrary branch's Python code:
+
+#+BEGIN_SRC bash
+VLLM_USE_PRECOMPILED=1 \
+VLLM_PRECOMPILED_WHEEL_LOCATION="https://wheels.vllm.ai/<commit-sha>/vllm-<ver>-cp38-abi3-manylinux_2_28_x86_64.whl" \
+uv pip install "vllm @ git+https://github.com/vllm-project/vllm@dgemma"
+#+END_SRC
+
+Two gotchas that each cost a retry:
+
+1. Wheel URLs you /guess/ from the nightly index 404 — the real wheels live
+   under *per-commit paths* (=https://wheels.vllm.ai/<full-sha>/...=).
+   Scrape the actual =href= from the index HTML.
+2. Without =VLLM_PRECOMPILED_WHEEL_LOCATION=, the build fetches a wheel for
+   the branch's merge-base commit — which may simply not exist (404 again).
+
+This works because the branch's diffusion path is Triton-based
+(JIT-compiled Python): no new compiled CUDA kernels, so a recent nightly's
+binaries are ABI-compatible. Install into a /dedicated venv/ so your
+known-good stable vLLM survives the experiment.
+
+One pleasant surprise: on Ada, vLLM automatically picks its *Marlin*
+backend for NVFP4 — "Your GPU does not have native support for FP4
+computation... Weight-only FP4 compression will be used" — so the
+Blackwell-native format runs fine on a 4090 as weight-only W4A16.
+
+* The OOM saga, in four acts
+
+Every failed launch died the same way, a few hundred MB short:
+
+#+BEGIN_EXAMPLE
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 256.00 MiB.
+GPU 0 has a total capacity of 23.54 GiB of which 135.19 MiB is free.
+Including non-PyTorch memory, this process has 21.38 GiB memory in use.
+#+END_EXAMPLE
+
+- *Act 1* — near-recipe defaults (=max-num-seqs 2=, ctx 8192,
+  =enforce-eager=, util 0.84): OOM at ~21.6GB demand vs ~21.4GB free.
+- *Act 2* — =max-num-seqs 1=, =expandable_segments:True=, ctx 4096: OOM
+  with /identical numbers/. Context length was not the variable.
+- *Act 3* — swap checkpoints. One NVFP4 repo is 18.1GB on disk, another
+  18.8GB. Result: the log line =Model loading took 17.21 GiB= was
+  *byte-identical for both*. Checkpoint file size ≠ GPU footprint once
+  Marlin repacks the weights. OOM again.
+- *Act 4* — =--cpu-offload-gb 3=, then a desperate =--cpu-offload-gb 12=
+  (the box has 64GB of RAM): /identical 17.21GB load both times/. *The flag
+  is a silent no-op on the NVFP4/Marlin path.* It parses, it logs, it does
+  nothing.
+
+A stopgap shipped first: halving the diffusion canvas
+(=--diffusion-config '{"canvas_length":128}'=) freed enough to boot, and
+ran at 244 tok/s. It worked — but it deviated from the model's native block
+size, and it was treating a symptom.
+
+* What the spike actually was
+
+Asked to "fully understand what exists today," a Claude Opus subagent went
+and read the =dgemma= branch source instead of more launch-day blog posts.
+Two findings rewrote the mental model:
+
+1. The /persistent/ diffusion state buffers are tiny. The canvas tensors
+   are =int64 [max_num_reqs, canvas]= and the self-conditioning embeds are
+   =float32 [max_num_reqs, canvas, hidden]= — single-digit megabytes at
+   =max-num-seqs 1=. Canvas 128 vs 256 was never the real lever.
+2. The real spike is the *fp32 logits tensor in vLLM's memory-profiling
+   pass*, sized by =--max-num-batched-tokens=:
+
+   #+BEGIN_EXAMPLE
+   profiling logits = max_num_batched_tokens × 262,144 vocab × 4 bytes
+                    = 2048 × 262,144 × 4   ≈ 2.1 GB
+   ...doubled by a .float() copy in the softcap  ≈ 4 GB transient
+   #+END_EXAMPLE
+
+   At decode, a block-diffusion model only ever needs /canvas-many/ logit
+   rows (256). The default profiling pass over-allocates *8×* what decode
+   will actually use.
+
+The fix is embarrassingly small: =--max-num-batched-tokens 256= (equal to
+the canvas), plus =--enable-chunked-prefill= so long prompts are split into
+256-token chunks instead of demanding one wide logits tensor. Native canvas
+256 fit immediately — /and/ used 0.7GB less than the canvas-128 hack, /and/
+the KV-cache pool jumped from 13K to 48K tokens, which let the context
+double to 8192.
+
+* The profiler lies: boots ≠ works
+
+One more landmine, and it's the sneakiest. At =gpu-memory-utilization 0.84=
+the server booted cleanly, reported a healthy KV pool... and the *first
+real request killed the engine* with the same OOM.
+
+vLLM's profiling pass doesn't execute the model-specific diffusion
+/sampler/, which allocates roughly another 1GB of fp32 intermediates over
+the 262k vocab (a =reshape(num_decode, canvas, -1).float()=, Gumbel noise,
+entropy terms — all fp32 "for numerical stability", all hardcoded, no dtype
+knob). The profiler can't see any of it, hands that memory to the KV cache,
+and the first decode finds the cupboard bare.
+
+=--gpu-memory-utilization 0.80= leaves the slack. The KV pool drops to a
+still-plentiful ~30K tokens, and the server survives sustained traffic.
+
+*Test a tight config with real requests before calling it stable.* "It
+boots" is not a result.
+
+* The final config
+
+#+BEGIN_SRC bash
+#!/usr/bin/env bash
+# Serve DiffusionGemma 26B-A4B (text diffusion) via the vLLM dgemma branch.
+set -euo pipefail
+REPO="${REPO:-RedHatAI/diffusiongemma-26B-A4B-it-NVFP4}"
+CTX="${CTX:-8192}"
+CANVAS="${CANVAS:-256}"        # the model's native block size
+MNBT="${MNBT:-$CANVAS}"        # profiling logits scale with this × 262k vocab
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+export VLLM_USE_V2_MODEL_RUNNER=1
+
+vllm serve "$REPO" \
+  --host 0.0.0.0 --port 8000 \
+  --served-model-name diffusiongemma \
+  --max-model-len "$CTX" \
+  --max-num-seqs 1 \
+  --gpu-memory-utilization 0.80 \
+  --enforce-eager \
+  --attention-backend TRITON_ATTN \
+  --generation-config vllm \
+  --max-num-batched-tokens "$MNBT" \
+  --enable-chunked-prefill \
+  --hf-overrides '{"diffusion_sampler": "entropy_bound", "diffusion_entropy_bound": 0.1}' \
+  --diffusion-config "{\"canvas_length\": $CANVAS}"
+#+END_SRC
+
+(=--generation-config vllm= matters: the checkpoint's
+=generation_config.json= otherwise caps =max_tokens= at 256.)
+
+* Final numbers
+
+| Metric           | Value                            |
+|------------------+----------------------------------|
+| Card total VRAM  | ~23.6GB of 24.5GB (96%)          |
+| Weights on GPU   | 17.21GB (Marlin W4)              |
+| Context          | 8192 (KV pool supports ~30K)     |
+| Short replies    | ~90 tok/s                        |
+| Long generations | *220–358 tok/s sustained*        |
+
+That last split is the interesting part: diffusion pays a fixed ~48
+denoising steps per block, so /short answers are slow and long generations
+are fast/ — exactly inverse to autoregressive intuition. For scale: a dense
+27B AR model manages ~30–50 tok/s on this card; a 35B-A3B MoE does ~90. The
+1000+ tok/s headlines remain H100 territory, but ~350 tok/s of coherent
+26B-class output from a desktop card that's simultaneously running Firefox
+is a genuinely new operating point.
+
+The cost: the card runs at 96%, through my usual <20GB safety margin — and
+there is *no offload valve*: =--cpu-offload-gb= does nothing on this path,
+and the llama.cpp route (which would put MoE experts in RAM) has no server
+yet. A heavy desktop VRAM spike can still kill the engine; it restarts in
+~80 seconds.
+
+* Lessons that generalize
+
+1. *Day-one support lives in unmerged branches.* PyPI stable, nightly, and
+   the docs all lag. Find the branch; =VLLM_USE_PRECOMPILED= + a per-commit
+   wheel URL installs it without an hour-long build.
+2. *Checkpoint file size ≠ GPU footprint.* Two NVFP4 repos, 0.7GB apart on
+   disk, identical 17.21GB on GPU. Read =Model loading took X GiB= in the
+   log, not the HF file listing.
+3. *When you OOM near the line, find out WHAT allocated* — read the model's
+   integration source in the serving engine if you must. The fix was a
+   number (=2048 → 256=) that no amount of checkpoint-swapping would find.
+4. *The memory profiler doesn't execute model-specific samplers.* A config
+   that boots can die on the first request. Send real traffic before
+   declaring victory.
+5. *Offload flags can silently no-op.* Test the claim (identical load size
+   at 3GB and 12GB ⇒ the flag does nothing); don't trust the CLI accepting
+   an argument.
+
+* Watch list (this post will age fast — deliberately)
+
+- vLLM PR #45163 merging to main → first nightly wheel with the arch; kills
+  the branch-venv hack entirely.
+- llama.cpp PR #24427 (a /general/ diffusion server) → would enable
+  =--n-cpu-moe= RAM offload and bring this model under a 20GB budget
+  properly.
+- A GPTQ-W4A16 checkpoint (AWQ degrades Gemma-family badly per
+  llm-compressor #2522; GPTQ holds) → potentially leaner than Marlin-FP4.
+
+#+BEGIN_QUOTE
+Again, for the record: an AI (Claude Fable 5, in Claude Code) did this work
+end-to-end on 2026-06-11 — including spawning its own Opus subagent for the
+source-level research — with me supplying the GPU, the prompts, and the
+occasional "try 12GB?". Take that for whatever you think it's worth; I
+think it's worth being upfront about.
+#+END_QUOTE

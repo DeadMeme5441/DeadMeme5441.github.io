@@ -1,0 +1,144 @@
+#+TITLE: Harness-1 (20B Search Agent) on a Desktop RTX 4090: Broken Templates and a Homemade MXFP4
+#+DATE: <2026-06-11>
+#+FILETAGS: :tech:llm:local_inference:llama_cpp:gpt_oss:
+
+#+BEGIN_QUOTE
+*Authorship disclaimer, in the interest of honesty:* this setup — the
+research, the debugging, the conversion, and this post — was done by
+*Claude (Fable 5, via Claude Code)*, operating agentically on my machine,
+with me prompting and steering. I'm publishing it because the information
+is useful, but the work is Claude's, not mine.
+#+END_QUOTE
+
+* What and why
+
+*Harness-1* (released 2026-06-06, arXiv:2606.02373) is a 20B search agent
+from Patrick Jiang et al., RL-trained inside a /state-externalizing/ search
+harness: instead of stuffing the whole search history into context, the
+harness keeps recoverable state (candidate docs, curated evidence,
+verification records) outside the model. It posts 0.730 average curated
+recall across eight benchmarks — frontier-class long-horizon retrieval from
+a 20B model — and it's a merge into =openai/gpt-oss-20b=, shipped as BF16
+safetensors.
+
+The goal: serve it on an OpenAI-compatible API from a single RTX 4090
+(24GB) that is /also the desktop GPU/ (~2.1GB permanently held by
+Xorg/Firefox/Discord, so the real budget is ~21GB; house rule is to keep
+models under ~20GB).
+
+This one is a llama.cpp story. The companion post covers a much hairier
+day-one deployment:
+[[file:diffusiongemma-on-rtx4090-vllm.org][DiffusionGemma on the same card]].
+
+* Picking the weights
+
+The official repo is BF16 safetensors: *~40GB*. Dead on arrival for 24GB of
+VRAM — and vLLM (the obvious server for safetensors) cannot offload MoE
+experts to system RAM the way llama.cpp's =--n-cpu-moe= can, so there is no
+vLLM path for this model on this card at all. FP8 on-the-fly would still be
+~21GB of weights alone; bitsandbytes 4-bit is the weakest quant of the
+bunch with shaky MoE support.
+
+The only published quant was a community *Q4_K_M GGUF* (~12GB). llama.cpp
+has supported the gpt-oss architecture since August 2025, so: download,
+serve, done?
+
+Almost.
+
+* Trap #1: the community GGUF ships a broken chat template
+
+First boot looked great — 216 tok/s — but the model's /reasoning/ was
+leaking straight into =content=, raw channel markup and all. llama.cpp's
+=/props= endpoint shows the chat template embedded in a GGUF; this one was
+208 characters in its entirety:
+
+#+BEGIN_SRC jinja
+{%- for message in messages -%}
+  {{- '<|im_start|>' + message.role + '\n' + message.content + '<|im_end|>\n' -}}
+{%- endfor -%}
+#+END_SRC
+
+A generic *ChatML* template — for a *gpt-oss* model that speaks /harmony/
+(channels, =analysis= vs =final= separation, built-in tool syntax). The
+quantizer's conversion had silently dropped the real template, and ChatML's
+special tokens aren't even in gpt-oss's vocabulary as control tokens.
+
+The fix is one flag: grab the official 16.7KB =chat_template.jinja= from
+the source HF repo and pass it explicitly:
+
+#+BEGIN_SRC bash
+llama-server -m harness-1-q4_k_m.gguf \
+  -c 65536 -ngl 99 -fa on \
+  --jinja --chat-template-file harness-1.chat_template.jinja \
+  --reasoning-format auto
+#+END_SRC
+
+After that: clean =content=, reasoning split into =reasoning_content=, and
+proper OpenAI-style =tool_calls= with =finish_reason: tool_calls= — which
+matters rather a lot for a model whose entire purpose is calling search
+tools.
+
+*If you take one thing from this post:* day-one community GGUFs of
+template-sensitive models deserve a =/props= check before you trust a
+single output.
+
+* Trap #2 (avoided): re-quantizing a natively-MXFP4 model to Q4_K_M
+
+gpt-oss-20b was /trained/ in MXFP4. The community Q4_K_M is a re-quant of
+the upcast BF16 merge — a similar bit-budget, but not the representation
+the model was trained in. llama.cpp has a quant type specifically for this
+family: =MXFP4_MOE=.
+
+Nobody had published an MXFP4 GGUF of Harness-1, so Claude made one from
+the official BF16 weights:
+
+#+BEGIN_SRC bash
+# 1. BF16 safetensors -> BF16 GGUF (needs torch + llama.cpp's gguf-py on PYTHONPATH)
+PYTHONPATH=llama.cpp/gguf-py python llama.cpp/convert_hf_to_gguf.py \
+  <hf-snapshot-dir> --outfile harness-1-bf16.gguf --outtype bf16
+
+# 2. BF16 GGUF -> MXFP4_MOE
+llama-quantize harness-1-bf16.gguf harness-1-mxfp4.gguf MXFP4_MOE 8
+#+END_SRC
+
+Notes:
+
+- The intermediate BF16 GGUF is ~40GB — make sure it lands on a big disk,
+  and delete it after the quantize step verifies.
+- =llama-quantize= is /not built/ if your cmake invocation targeted only
+  =llama-server=; it's a fast incremental =--target llama-quantize= build.
+- The conversion is CPU/RAM-only and ran happily alongside a live server.
+
+* Final numbers
+
+Measured on the 4090 with the desktop running, 64K context, all layers on
+GPU, llama.cpp with flash attention:
+
+| Artifact             | VRAM (model+KV) | Speed       | Context |
+|----------------------+-----------------+-------------+---------|
+| Q4_K_M (community)   | ~16.9GB         | 214 tok/s   | 64K     |
+| MXFP4_MOE (homemade) | *~13.2GB*       | *228 tok/s* | 64K     |
+
+Smaller, faster, and in the model's native precision — comfortably inside
+the 20GB budget with the desktop untouched. Tool-calling verified against
+the OpenAI API surface with a =tools= array; the model emits well-formed
+=tool_calls= and stops with =finish_reason: tool_calls=.
+
+* Lessons that generalize
+
+1. *Verify community GGUF chat templates* (=/props=) before trusting
+   outputs of template-sensitive models. Silent template loss produces a
+   model that "works" while quietly degraded.
+2. *Match the quant to the training precision* where the toolchain offers
+   it: =MXFP4_MOE= for gpt-oss-family was smaller /and/ faster /and/ truer
+   than the generic Q4_K_M.
+3. *Engine choice is per-model, not per-stack.* The same OpenAI API can
+   front llama.cpp for this model and vLLM for the next one; clients never
+   know. BF16-only releases of MoE models are effectively llama.cpp-only on
+   24GB cards because of expert offload.
+
+#+BEGIN_QUOTE
+Again, for the record: an AI (Claude Fable 5, in Claude Code) did this work
+end-to-end on 2026-06-11, with me supplying the GPU and the prompts. I
+think that's worth being upfront about.
+#+END_QUOTE
